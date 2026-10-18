@@ -1,17 +1,45 @@
-# digital-abonnement
+# digital-abonnement — موقع مع لوحة إدارة (Vercel + Supabase)
 
-Site vitrine statique (un seul fichier `index.html`) pour vendre des abonnements digitaux, avec commande par WhatsApp.
-Aucun build n'est nécessaire.
+الموقع صفحة واحدة (`index.html`) ومعها خادم صغير في مجلد `api`. المحتوى (العروض، الأسعار، طرق الدفع، النصوص) محفوظ في قاعدة بيانات Supabase، ولوحة الإدارة محمية بكلمة سر.
 
-## Déployer sur Vercel
-1. Importer ce dépôt GitHub dans Vercel (New Project).
-2. Framework Preset : **Other**. Laisser Build Command et Output Directory vides.
-3. Cliquer sur Deploy.
+## 1) إنشاء قاعدة البيانات (Supabase)
+1. أنشئ مشروعا جديدا في supabase.com.
+2. افتح **SQL Editor** ثم **New query**، والصق محتوى ملف `supabase.sql` واضغط **Run**.
+3. من **Project Settings → API** انسخ:
+   - **Project URL**
+   - مفتاح **service_role** (أو **secret**). هذا المفتاح سرّي: لا تنشره ولا تضعه في الكود.
 
-## Modifier le contenu
-Le contenu (offres, prix, numéro WhatsApp, moyens de paiement) est dans le bloc
-`<script type="application/json" id="site-data">` de `index.html`.
-Modifier ce JSON puis faire un commit : Vercel redéploie automatiquement.
+## 2) رفع المشروع على GitHub
+ارفع كل الملفات مع الحفاظ على مجلد `api` كما هو: `index.html` (الموقع العام)، `gestion-josejax37qrh.html` (صفحة الإدارة)، `vercel.json`، `supabase.sql`، `.gitignore`، `README.md`، و`api/_lib.js` و`api/session.js` و`api/content.js`.
 
-Note : le bouton « الإدارة » (panneau d'administration) ne fonctionne que dans claude.ai.
-Sur Vercel il n'apparaît pas.
+## 3) النشر على Vercel
+1. **Add New → Project** ثم اختر المستودع.
+2. **Framework Preset: Other**، واترك Build وOutput فارغين.
+3. في **Environment Variables** أضف أربعة متغيرات:
+
+| الاسم | القيمة |
+|---|---|
+| `SUPABASE_URL` | رابط مشروع Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | مفتاح service_role |
+| `ADMIN_PASSWORD` | كلمة السر التي تدخل بها إلى الإدارة (اختر كلمة طويلة وصعبة) |
+| `SESSION_SECRET` | نص عشوائي طويل (40 حرفا أو أكثر)، مثلا من مولّد كلمات السر |
+
+4. اضغط **Deploy**.
+
+## 4) الدخول إلى الإدارة (رابط خاص)
+الإدارة غير موجودة في الموقع العام نهائيا: لا زر ولا رابط. لها صفحة منفصلة على رابط سرّي:
+
+`https://اسم-موقعك.vercel.app/gestion-josejax37qrh`
+
+افتح هذا الرابط وأدخل كلمة السر، فتظهر لوحة الإدارة. بعد التعديل اضغط **«نشر التغييرات»**، ثم **«خروج»** عند الانتهاء.
+
+- احفظ الرابط عندك ولا تشاركه. الصفحة لا تظهر في Google، ولا أحد يدخل منها بدون كلمة السر.
+- لتغيير الرابط: غيّر اسم الملف `gestion-josejax37qrh.html` إلى `gestion-` متبوعا بأي نص تريده (أحرف وأرقام فقط)، ثم ارفع التغيير إلى GitHub.
+
+## ملاحظات
+- الزبائن يرون التغييرات خلال دقيقة تقريبا (تخزين مؤقت قصير).
+- إذا غيّرت متغيرات البيئة في Vercel، أعد النشر (Redeploy) لتُطبَّق.
+- الجلسة تدوم 7 أيام، وزر **«خروج»** ينهيها.
+- حجم البيانات المحفوظة محدود بحوالي 4 ميغابايت: الصور تُصغَّر تلقائيا، لكن لا ترفع عشرات الصور الكبيرة.
+- إذا تعطّلت قاعدة البيانات، يعرض الموقع آخر نسخة مدمجة في `index.html`.
+- لا توجد حماية متقدمة من تخمين كلمة السر غير تأخير ثانية عند الخطأ: اختر كلمة سر قوية.
